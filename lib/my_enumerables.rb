@@ -6,10 +6,55 @@ module Enumerable
       result << true if yield(elem)
     end
 
-    if result.length == self.length
-      return true
+    result.length == self.length
+  end
+
+  def my_any?
+    any = false
+    self.each do |elem|
+      break any = true if yield(elem)
+    end
+    any
+  end
+
+  def my_count
+    return self.length unless block_given?
+    count = 0
+    self.each do |elem|
+      count += 1 if yield(elem)
+    end
+    count
+  end
+
+  def my_each_with_index
+    if block_given?
+      result = []
+      count = 0
+
+      for item in self
+        result << [item, count]
+        count += 1
+      end
+
+      for item in result
+        yield(item[0], item[1])
+      end
+
+      self
     else
-      return false
+      result = []
+      count = 0
+      for item in self
+        result << [item, count]
+        count += 1
+      end
+      return result.to_enum
+    end
+  end
+
+  def my_inject(initial_value)
+    inject_result = self.my_each do
+      yield(initial_value)
     end
   end
 end
@@ -27,6 +72,3 @@ class Array
     end
   end
 end
-
-test = [1, 1, 2, 3, 5, 8, 13, 21, 34]
-puts test.my_all? { |value| value < 5 }
