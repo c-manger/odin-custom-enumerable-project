@@ -11,7 +11,7 @@ module Enumerable
 
   def my_any?
     any = false
-    self.each do |elem|
+    self.my_each do |elem|
       break any = true if yield(elem)
     end
     any
@@ -20,7 +20,7 @@ module Enumerable
   def my_count
     return self.length unless block_given?
     count = 0
-    self.each do |elem|
+    self.my_each do |elem|
       count += 1 if yield(elem)
     end
     count
@@ -53,9 +53,38 @@ module Enumerable
   end
 
   def my_inject(initial_value)
-    inject_result = self.my_each do
-      yield(initial_value)
+    result = initial_value
+    for elem in self
+      result = yield(result, elem)
     end
+    result
+  end
+
+  def my_map
+    return to_enum(:my_map) unless block_given?
+    result_array = []
+    for elem in self
+      result_array << yield(elem)
+    end
+    result_array
+  end
+
+  def my_none?
+    none = true
+    self.my_each do |elem|
+      break none = false if yield(elem)
+    end
+    none
+  end
+
+  def my_select
+    return to_enum(:my_select) unless block_given?
+    result = []
+    self.my_each do |elem| 
+      result << elem if yield(elem) == true
+    end
+
+    result
   end
 end
 
@@ -72,3 +101,4 @@ class Array
     end
   end
 end
+
